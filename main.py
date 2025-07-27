@@ -8,16 +8,20 @@ while True:
     user_input = input(cwd + ">")
 
     messages = [
-        {"role": "system", "content": "You are an AI assistant that converts user requests into a single, correct Windows Terminal command. Only respond with the command, no explanations. If unsure or ambiguous, ask the user for clarification. Commands must be safe and valid for Windows PowerShell or Command Prompt."},
+        {"role": "system", "content": "You are an ai in the windows command prompt, assist the user by responding and or using the appropriate command prompt. To use a command prompt put it square brackets. When more information is needed, use command prompts to find it or ask the user. You must never open command prompt for the user, only you can run commands in command prompt."},
         {"role": "user", "content": user_input}
     ]
 
     response = ollama.chat(model='gemma3', messages=messages)
-    print(response['message']['content'])
+    response = response['message']['content']
+    print(response)
 
-    command = response['message']['content']
-
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-
-    print("Output:", result.stdout)
-    print("Error:", result.stderr)
+    try:
+        start = response.index('[')
+        end = response.index(']')
+        command = response[start + 1:end]
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        print(result.stdout)
+        print(result.stderr)
+    except ValueError:
+        pass
